@@ -1,0 +1,51 @@
+name:    declarative-tv-backend
+version: "0.0.1"
+
+dependencies:
+- base >= 4.7 && < 5
+- mtl
+- servant
+- servant-server
+- text
+- transformers
+- unliftio
+- warp
+
+default-extensions:
+- DataKinds
+- DeriveGeneric
+- DerivingStrategies
+- GeneralizedNewtypeDeriving
+- ImportQualifiedPost
+- LambdaCase
+- OverloadedStrings
+- RankNTypes
+- RecordWildCards
+- TypeApplications
+- TypeOperators
+
+# The library contains all of our application code. The executable
+# defined below is just a thin wrapper.
+library:
+  source-dirs: src
+
+# Runnable executable for our application
+executables:
+  declarative-tv-backend:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - declarative-tv-backend
+
+# Test suite
+tests:
+  declarative-tv-backend-test:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+    - declarative-tv-backend
+    - hspec
