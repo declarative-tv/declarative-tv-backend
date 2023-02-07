@@ -1,6 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Api.Hello where
 
-import App (AppM)
+import App
+import Control.Exception (Exception, catch)
+import Control.Monad.Catch (MonadThrow, throwM)
+import Control.Monad.Reader (MonadReader)
 import Data.Text (Text)
 import Servant
 import Servant.API.Generic (Generic)
@@ -14,5 +19,8 @@ newtype Hello route = Hello
 helloImpl :: Hello (AsServerT AppM)
 helloImpl =
   Hello
-    { hello = pure "hello, world!"
+    { hello = action
     }
+
+action :: (MonadThrow m, MonadReader App m) => m Text
+action = throwM $ err401 {errBody = "This action failed..."}

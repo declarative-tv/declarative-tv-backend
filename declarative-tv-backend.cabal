@@ -28,10 +28,13 @@ library
       OverloadedStrings
       RankNTypes
       RecordWildCards
+      ScopedTypeVariables
       TypeApplications
       TypeOperators
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , exceptions
     , mtl
     , servant
     , servant-server
@@ -57,12 +60,15 @@ executable declarative-tv-backend
       OverloadedStrings
       RankNTypes
       RecordWildCards
+      ScopedTypeVariables
       TypeApplications
       TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , declarative-tv-backend
+    , exceptions
     , mtl
     , servant
     , servant-server
@@ -89,11 +95,14 @@ test-suite declarative-tv-backend-test
       OverloadedStrings
       RankNTypes
       RecordWildCards
+      ScopedTypeVariables
       TypeApplications
       TypeOperators
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , declarative-tv-backend
+    , exceptions
     , hspec
     , mtl
     , servant

@@ -3,6 +3,8 @@ version: "0.0.1"
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring
+- exceptions
 - mtl
 - servant
 - servant-server
@@ -21,6 +23,7 @@ default-extensions:
 - OverloadedStrings
 - RankNTypes
 - RecordWildCards
+- ScopedTypeVariables
 - TypeApplications
 - TypeOperators
 
