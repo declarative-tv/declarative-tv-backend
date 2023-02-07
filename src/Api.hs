@@ -1,18 +1,17 @@
 module Api (app) where
 
+import Api.Hello
 import App
 import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.Reader (runReaderT)
 import Data.Text (Text)
 import Servant
-import Servant.API.Generic (
-  Generic,
- )
+import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT, genericServeT)
-import UnliftIO (liftIO)
+import UnliftIO (liftIO, tryAny)
 
 newtype Api route = Api
-  { _hello :: route :- "hello" :> Get '[JSON] Text
+  { _api :: route :- "api" :> ToServant Hello AsApi
   }
   deriving (Generic)
 
@@ -22,7 +21,7 @@ api = genericApi (Proxy :: Proxy Api)
 apiImpl :: Api (AsServerT AppM)
 apiImpl =
   Api
-    { _hello = pure "hello, world!"
+    { _api = toServant helloImpl
     }
 
 app :: App -> IO Application
@@ -30,7 +29,12 @@ app config = pure $ genericServeT handler apiImpl
   where
     handler :: AppM a -> Handler a
     handler appM = do
-      res <- liftIO . runExceptT $ runReaderT (runAppM appM) config
-      Handler . ExceptT . pure $ case res of
-        Left AppError -> Left err500
-        Right a -> Right a
+      res <-
+        -- Is 'tryAny' really want we want here?
+        liftIO . tryAny $ runReaderT (runAppM appM) config
+      case res of
+        Left err -> do
+          liftIO $ print err
+          -- TODO: Log the exception
+          throwError err500 {errBody = "Unexpected server error..."}
+        Right a -> pure a

@@ -6,5 +6,5 @@ import Network.Wai.Handler.Warp as Warp
 
 main :: IO ()
 main = do
-  api' <- app App
-  Warp.run 8081 api'
+  app' <- app App
+  Warp.run 8081 app'

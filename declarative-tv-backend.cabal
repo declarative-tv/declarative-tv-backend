@@ -11,6 +11,7 @@ build-type:     Simple
 library
   exposed-modules:
       Api
+      Api.Hello
       App
       Lib
   other-modules:
