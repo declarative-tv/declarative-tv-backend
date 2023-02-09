@@ -6,6 +6,8 @@ dependencies:
 - bytestring
 - exceptions
 - mtl
+- postgresql-simple
+- resource-pool
 - servant
 - servant-server
 - text

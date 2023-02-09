@@ -11,16 +11,21 @@ import Servant
 import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT)
 
-newtype Hello route = Hello
-  { hello :: route :- "hello" :> Get '[JSON] Text
+data Hello route = Hello
+  { helloFail :: route :- "hello" :> "fail" :> Get '[JSON] Text
+  , helloWork :: route :- "hello" :> "work" :> Get '[JSON] Text
   }
   deriving (Generic)
 
 helloImpl :: Hello (AsServerT AppM)
 helloImpl =
   Hello
-    { hello = action
+    { helloFail = failAction
+    , helloWork = workAction
     }
 
-action :: (MonadThrow m, MonadReader App m) => m Text
-action = throwM $ err401 {errBody = "This action failed..."}
+workAction :: MonadReader App m => m Text
+workAction = pure "hello, world"
+
+failAction :: (MonadThrow m, MonadReader App m) => m Text
+failAction = throwM $ err401 {errBody = "This action failed..."}

@@ -36,6 +36,8 @@ library
     , bytestring
     , exceptions
     , mtl
+    , postgresql-simple
+    , resource-pool
     , servant
     , servant-server
     , text
@@ -70,6 +72,8 @@ executable declarative-tv-backend
     , declarative-tv-backend
     , exceptions
     , mtl
+    , postgresql-simple
+    , resource-pool
     , servant
     , servant-server
     , text
@@ -105,6 +109,8 @@ test-suite declarative-tv-backend-test
     , exceptions
     , hspec
     , mtl
+    , postgresql-simple
+    , resource-pool
     , servant
     , servant-server
     , text
