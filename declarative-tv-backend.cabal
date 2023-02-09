@@ -13,6 +13,8 @@ library
       Api
       Api.Hello
       App
+      Environment
+      Environment.Orphans
       Lib
   other-modules:
       Paths_declarative_tv_backend
@@ -34,6 +36,7 @@ library
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , envy
     , exceptions
     , mtl
     , postgresql-simple
@@ -70,6 +73,7 @@ executable declarative-tv-backend
       base >=4.7 && <5
     , bytestring
     , declarative-tv-backend
+    , envy
     , exceptions
     , mtl
     , postgresql-simple
@@ -106,6 +110,7 @@ test-suite declarative-tv-backend-test
       base >=4.7 && <5
     , bytestring
     , declarative-tv-backend
+    , envy
     , exceptions
     , hspec
     , mtl

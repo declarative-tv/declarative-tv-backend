@@ -14,23 +14,14 @@ import Database.PostgreSQL.Simple (
   Only (..),
   close,
   connect,
-  defaultConnectInfo,
   query_,
  )
+import Environment
 import Network.Wai.Handler.Warp qualified as Warp
 import UnliftIO (bracket)
 
-connectionInfo :: ConnectInfo
-connectionInfo =
-  defaultConnectInfo
-    { connectHost = "localhost"
-    , connectPort = 5432
-    , connectUser = "chiroptical"
-    , connectDatabase = "declarative-tv"
-    }
-
-pgPool :: IO (Pool Connection)
-pgPool = createPool (connect connectionInfo) close 1 10 10
+pgPool :: ConnectInfo -> IO (Pool Connection)
+pgPool connectInfo = createPool (connect connectInfo) close 1 10 10
 
 connectionCount :: Pool Connection -> IO Integer
 connectionCount pool =
@@ -40,8 +31,9 @@ connectionCount pool =
 
 main :: IO ()
 main = do
-  bracket pgPool destroyAllResources $ \pool -> do
+  pgConnectionInfo <- getPgConnectInfo
+  bracket (pgPool pgConnectionInfo) destroyAllResources $ \pool -> do
     count <- connectionCount pool
     print $ "Current connection count " <> show count
-    app' <- app App
-    Warp.run 8081 app'
+  app' <- app App
+  Warp.run 8081 app'

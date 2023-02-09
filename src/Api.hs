@@ -2,21 +2,16 @@ module Api (app) where
 
 import Api.Hello
 import App
-import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.Reader (runReaderT)
-import Data.Text (Text)
 import Servant
 import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT, genericServeT)
-import UnliftIO (Exception (displayException, fromException), liftIO, tryAny)
+import UnliftIO (Exception (fromException), liftIO, tryAny)
 
 newtype Api route = Api
   { _api :: route :- "api" :> ToServant Hello AsApi
   }
   deriving (Generic)
-
-api :: Proxy (ToServantApi Api)
-api = genericApi (Proxy :: Proxy Api)
 
 apiImpl :: Api (AsServerT AppM)
 apiImpl =

@@ -3,7 +3,6 @@
 module Api.Hello where
 
 import App
-import Control.Exception (Exception, catch)
 import Control.Monad.Catch (MonadThrow, throwM)
 import Control.Monad.Reader (MonadReader)
 import Data.Text (Text)
