@@ -14,7 +14,6 @@ library
       Api.Hello
       App
       Environment
-      Environment.Orphans
       Lib
   other-modules:
       Paths_declarative_tv_backend
