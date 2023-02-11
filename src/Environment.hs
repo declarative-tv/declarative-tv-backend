@@ -3,6 +3,7 @@ module Environment where
 import Data.Word (Word16)
 import Database.PostgreSQL.Simple (ConnectInfo (..), defaultConnectInfo)
 import GHC.Generics (Generic)
+import My.Prelude
 import System.Envy
 
 data PgConnectInfo = PgConnectInfo

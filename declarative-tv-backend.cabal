@@ -14,7 +14,7 @@ library
       Api.Hello
       App
       Environment
-      Lib
+      My.Prelude
   other-modules:
       Paths_declarative_tv_backend
   hs-source-dirs:
@@ -26,6 +26,7 @@ library
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      NoImplicitPrelude
       OverloadedStrings
       RankNTypes
       RecordWildCards
@@ -61,6 +62,7 @@ executable declarative-tv-backend
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      NoImplicitPrelude
       OverloadedStrings
       RankNTypes
       RecordWildCards
@@ -99,6 +101,7 @@ test-suite declarative-tv-backend-test
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      NoImplicitPrelude
       OverloadedStrings
       RankNTypes
       RecordWildCards

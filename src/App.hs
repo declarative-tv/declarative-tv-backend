@@ -1,9 +1,6 @@
 module App where
 
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.Trans.Reader (ReaderT)
-import UnliftIO (MonadIO)
+import My.Prelude
 
 -- | The application configuration
 data App = App

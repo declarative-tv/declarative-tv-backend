@@ -17,6 +17,7 @@ import Database.PostgreSQL.Simple (
   query_,
  )
 import Environment
+import My.Prelude
 import Network.Wai.Handler.Warp qualified as Warp
 import UnliftIO (bracket)
 
@@ -27,7 +28,9 @@ connectionCount :: Pool Connection -> IO Integer
 connectionCount pool =
   withResource pool $ \conn -> do
     res :: [Only Integer] <- query_ conn "select count(*) from pg_stat_activity"
-    pure . fromOnly $ head res
+    pure $ case res of
+      [] -> 0
+      (x : _) -> fromOnly x
 
 main :: IO ()
 main = do

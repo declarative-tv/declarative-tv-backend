@@ -2,11 +2,11 @@ module Api (app) where
 
 import Api.Hello
 import App
-import Control.Monad.Reader (runReaderT)
+import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT, genericServeT)
-import UnliftIO (Exception (fromException), liftIO, tryAny)
+import UnliftIO (fromException, tryAny)
 
 newtype Api route = Api
   { _api :: route :- "api" :> ToServant Hello AsApi

@@ -3,9 +3,7 @@
 module Api.Hello where
 
 import App
-import Control.Monad.Catch (MonadThrow, throwM)
-import Control.Monad.Reader (MonadReader)
-import Data.Text (Text)
+import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT)

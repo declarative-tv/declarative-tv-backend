@@ -23,6 +23,7 @@ default-extensions:
 - GeneralizedNewtypeDeriving
 - ImportQualifiedPost
 - LambdaCase
+- NoImplicitPrelude
 - OverloadedStrings
 - RankNTypes
 - RecordWildCards
