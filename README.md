@@ -3,7 +3,8 @@ TODO
 
 - [x] Configuration which can be overridden by environment variables
   - Used [this library][envy]
-- [ ] Add co-log logging
+- [x] Add [co-log][co-log] logging
+  - Used [these directions][co-log-custom]
 - [ ] Set up postgresql via postgres-simple
 - [ ] Set up opentelemetry with honeycomb
 - [ ] Handle CSRF
@@ -23,3 +24,5 @@ Random Notes
 
 [production-haskell]: https://leanpub.com/production-haskell
 [envy]: https://hackage.haskell.org/package/envy
+[co-log]: https://hackage.haskell.org/package/co-log
+[co-log-custom]: https://github.com/co-log/co-log/blob/main/tutorials/2-custom/Custom.md

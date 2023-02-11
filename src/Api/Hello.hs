@@ -21,8 +21,12 @@ helloImpl =
     , helloWork = workAction
     }
 
-workAction :: MonadReader App m => m Text
-workAction = pure "hello, world"
+workAction :: WithLog env Message m => m Text
+workAction = do
+  log I "Hit /hello/work"
+  pure "hello, world"
 
-failAction :: (MonadThrow m, MonadReader App m) => m Text
-failAction = throwM $ err401 {errBody = "This action failed..."}
+failAction :: (WithLog env Message m, MonadThrow m) => m Text
+failAction = do
+  log E "Hit /hello/fail"
+  throwM $ err401 {errBody = "This action failed..."}

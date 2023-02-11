@@ -19,7 +19,7 @@ apiImpl =
     { _api = toServant helloImpl
     }
 
-app :: App -> IO Application
+app :: App AppM -> IO Application
 app config = pure $ genericServeT handler apiImpl
   where
     -- Attempt to handle 'ServerError's thrown by the application.

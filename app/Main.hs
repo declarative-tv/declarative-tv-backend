@@ -38,5 +38,9 @@ main = do
   bracket (pgPool pgConnectionInfo) destroyAllResources $ \pool -> do
     count <- connectionCount pool
     print $ "Current connection count " <> show count
-  app' <- app App
+  app' <-
+    app $
+      App
+        { appLogAction = richMessageAction
+        }
   Warp.run 8081 app'

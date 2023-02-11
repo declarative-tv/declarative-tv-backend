@@ -8,9 +8,13 @@ module My.Prelude (
   module Text,
 
   -- * MTL
- module MTL,
+  module MTL,
+
+  -- * Co-log
+  module Colog,
 ) where
 
+import Colog
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text)
@@ -26,6 +30,7 @@ import Prelude hiding (
   init,
   last,
   length,
+  log,
   maximum,
   minimum,
   product,
