@@ -5,6 +5,7 @@ TODO
   - Used [this library][envy]
 - [x] Add [co-log][co-log] logging
   - Used [these directions][co-log-custom]
+- [ ] Use [annotated-exception][annotated-exception] to make exceptions easier
 - [ ] Set up postgresql via postgres-simple
 - [ ] Set up opentelemetry with honeycomb
 - [ ] Handle CSRF
@@ -26,3 +27,4 @@ Random Notes
 [envy]: https://hackage.haskell.org/package/envy
 [co-log]: https://hackage.haskell.org/package/co-log
 [co-log-custom]: https://github.com/co-log/co-log/blob/main/tutorials/2-custom/Custom.md
+[annotated-exception]: https://hackage.haskell.org/package/annotated-exception
