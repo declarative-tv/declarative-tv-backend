@@ -1,8 +1,9 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Api.Hello where
 
 import App
+import Database
 import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
@@ -21,12 +22,14 @@ helloImpl =
     , helloWork = workAction
     }
 
-workAction :: WithLog env Message m => m Text
+workAction :: AppContext m => m Text
 workAction = do
-  log I "Hit /hello/work"
+  count <- runDb connectionCount
+  log I $ "Hit /hello/work, with count " <> tshow count
   pure "hello, world"
 
-failAction :: (WithLog env Message m, MonadThrow m) => m Text
+failAction :: AppContext m => m Text
 failAction = do
-  log E "Hit /hello/fail"
+  count <- runDb connectionCount
+  log E $ "Hit /hello/fail, with count " <> tshow count
   throwM $ err401 {errBody = "This action failed..."}

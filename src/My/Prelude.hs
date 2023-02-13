@@ -6,6 +6,7 @@ module My.Prelude (
 
   -- * Text
   module Text,
+  tshow,
 
   -- * MTL
   module MTL,
@@ -17,7 +18,7 @@ module My.Prelude (
 import Colog
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
-import Data.Text as Text (Text)
+import Data.Text as Text (Text, pack)
 import Prelude hiding (
   cycle,
   dropWhile,
@@ -39,3 +40,6 @@ import Prelude hiding (
   tail,
   (!!),
  )
+
+tshow :: Show a => a -> Text
+tshow = pack . show

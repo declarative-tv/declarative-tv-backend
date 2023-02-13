@@ -13,7 +13,8 @@ library
       Api
       Api.Hello
       App
-      Environment
+      Configuration
+      Database
       My.Prelude
   other-modules:
       Paths_declarative_tv_backend
@@ -23,6 +24,7 @@ library
       DataKinds
       DeriveGeneric
       DerivingStrategies
+      FlexibleContexts
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
@@ -60,6 +62,7 @@ executable declarative-tv-backend
       DataKinds
       DeriveGeneric
       DerivingStrategies
+      FlexibleContexts
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
@@ -100,6 +103,7 @@ test-suite declarative-tv-backend-test
       DataKinds
       DeriveGeneric
       DerivingStrategies
+      FlexibleContexts
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase

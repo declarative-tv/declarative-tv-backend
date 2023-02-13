@@ -21,6 +21,7 @@ default-extensions:
 - DataKinds
 - DeriveGeneric
 - DerivingStrategies
+- FlexibleContexts
 - GeneralizedNewtypeDeriving
 - ImportQualifiedPost
 - LambdaCase
