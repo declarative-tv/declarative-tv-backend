@@ -2,11 +2,11 @@ module Api (app) where
 
 import Api.Hello
 import App
+import GHC.Stack (callStack)
 import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
 import Servant.Server.Generic (AsServerT, genericServeT)
-import UnliftIO (fromException, tryAny)
 
 newtype Api route = Api
   { _api :: route :- "api" :> ToServant Hello AsApi
@@ -26,15 +26,18 @@ app config = pure $ genericServeT handler apiImpl
     -- Any other error is deemed "unexpected" and we'll not leak details.
     handler :: AppM a -> Handler a
     handler appM = do
-      res <- liftIO . tryAny $ runReaderT (runAppM appM) config
+      res <-
+        liftIO . try . checkpoint "Api.handler" $
+          runReaderT appM.runAppM config
       case res of
         Left exception -> do
-          let mAppError = fromException @ServerError exception
-          case mAppError of
-            Just serverError ->
-              throwError serverError
+          let mAnnotatedException = fromException @(AnnotatedException ServerError) exception
+          case mAnnotatedException of
+            Just annotatedException ->
+              throwError annotatedException.exception
             Nothing -> do
-              -- TODO: Log the exception
-              liftIO $ print exception
+              -- TODO: Is there a better way? It would be nice to have this
+              -- formatted the same as my other log messages.
+              liftIO . print . fmtMessage . Msg Error callStack $ tshow exception
               throwError err500 {errBody = "Unexpected server error..."}
         Right a -> pure a

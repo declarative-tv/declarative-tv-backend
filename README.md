@@ -5,8 +5,10 @@ TODO
   - Used [this library][envy]
 - [x] Add [co-log][co-log] logging
   - Used [these directions][co-log-custom]
-- [ ] Use [annotated-exception][annotated-exception] to make exceptions easier
-- [ ] Set up postgresql via postgres-simple
+- [x] Use [annotated-exception][annotated-exception] to make exceptions easier
+  - See `src/Api.hs` for an example
+- [x] Set up postgresql via postgres-simple
+  - [ ] Get more familiar with postgres-simple
 - [ ] Set up opentelemetry with honeycomb
 - [ ] Handle CSRF
 - [ ] Get websockets working

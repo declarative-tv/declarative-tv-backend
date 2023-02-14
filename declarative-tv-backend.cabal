@@ -30,13 +30,15 @@ library
       LambdaCase
       NoImplicitPrelude
       OverloadedStrings
+      OverloadedRecordDot
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
       TypeApplications
       TypeOperators
   build-depends:
-      base >=4.7 && <5
+      annotated-exception
+    , base >=4.7 && <5
     , bytestring
     , co-log
     , envy
@@ -68,6 +70,7 @@ executable declarative-tv-backend
       LambdaCase
       NoImplicitPrelude
       OverloadedStrings
+      OverloadedRecordDot
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
@@ -75,7 +78,8 @@ executable declarative-tv-backend
       TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      annotated-exception
+    , base >=4.7 && <5
     , bytestring
     , co-log
     , declarative-tv-backend
@@ -109,13 +113,15 @@ test-suite declarative-tv-backend-test
       LambdaCase
       NoImplicitPrelude
       OverloadedStrings
+      OverloadedRecordDot
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
       TypeApplications
       TypeOperators
   build-depends:
-      base >=4.7 && <5
+      annotated-exception
+    , base >=4.7 && <5
     , bytestring
     , co-log
     , declarative-tv-backend

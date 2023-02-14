@@ -2,6 +2,7 @@ name:    declarative-tv-backend
 version: "0.0.1"
 
 dependencies:
+- annotated-exception
 - base >= 4.7 && < 5
 - bytestring
 - co-log
@@ -27,6 +28,7 @@ default-extensions:
 - LambdaCase
 - NoImplicitPrelude
 - OverloadedStrings
+- OverloadedRecordDot
 - RankNTypes
 - RecordWildCards
 - ScopedTypeVariables

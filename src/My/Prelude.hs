@@ -13,9 +13,13 @@ module My.Prelude (
 
   -- * Co-log
   module Colog,
+
+  -- * Annotated Exception
+  module AnnotatedException,
 ) where
 
 import Colog
+import Control.Exception.Annotated.UnliftIO as AnnotatedException hiding (Handler)
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text, pack)

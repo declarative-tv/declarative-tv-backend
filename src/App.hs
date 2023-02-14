@@ -18,7 +18,6 @@ import Database.PostgreSQL.Simple (
   connect,
  )
 import My.Prelude
-import UnliftIO (MonadUnliftIO)
 
 -- | The application environment
 newtype AppM a = AppM {runAppM :: ReaderT (App AppM) IO a}
