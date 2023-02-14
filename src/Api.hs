@@ -2,7 +2,6 @@ module Api (app) where
 
 import Api.Hello
 import App
-import GHC.Stack (callStack)
 import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
@@ -38,6 +37,6 @@ app config = pure $ genericServeT handler apiImpl
             Nothing -> do
               -- TODO: Is there a better way? It would be nice to have this
               -- formatted the same as my other log messages.
-              liftIO . print . fmtMessage . Msg Error callStack $ tshow exception
+              liftIO . print $ logShow Error exception
               throwError err500 {errBody = "Unexpected server error..."}
         Right a -> pure a
