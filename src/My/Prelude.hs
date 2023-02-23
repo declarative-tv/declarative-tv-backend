@@ -11,20 +11,20 @@ module My.Prelude (
   -- * MTL
   module MTL,
 
-  -- * Co-log
-  module Colog,
-  logShow,
+  -- * katip
+  module Katip,
+  lshow,
 
   -- * Annotated Exception
   module AnnotatedException,
 ) where
 
-import Colog
 import Control.Exception.Annotated.UnliftIO as AnnotatedException hiding (Handler)
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text, pack)
 import GHC.Stack (callStack)
+import Katip
 import Prelude hiding (
   cycle,
   dropWhile,
@@ -50,8 +50,5 @@ import Prelude hiding (
 tshow :: Show a => a -> Text
 tshow = pack . show
 
-{- | Take a 'Show'-able and convert it into co-log formatted 'Text'. Useful
- when you want to log in 'IO' directly.
--}
-logShow :: Show a => Severity -> a -> Text
-logShow sev = fmtMessage . Msg sev callStack . tshow
+lshow :: Show a => a -> LogStr
+lshow = logStr . show

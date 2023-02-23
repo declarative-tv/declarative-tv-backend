@@ -5,9 +5,9 @@ dependencies:
 - annotated-exception
 - base >= 4.7 && < 5
 - bytestring
-- co-log
 - envy
 - exceptions
+- katip
 - mtl
 - postgresql-simple
 - resource-pool

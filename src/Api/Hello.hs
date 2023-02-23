@@ -1,5 +1,3 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-
 module Api.Hello where
 
 import App
@@ -25,11 +23,11 @@ helloImpl =
 workAction :: AppContext m => m Text
 workAction = do
   count <- runDb connectionCount
-  log I $ "Hit /hello/work, with count " <> tshow count
+  logMsg "hello" InfoS $ "Hit /hello/work, with count " <> lshow count
   pure "hello, world"
 
 failAction :: AppContext m => m Text
 failAction = do
   count <- runDb connectionCount
-  log E $ "Hit /hello/fail, with count " <> tshow count
+  logMsg "hello" InfoS $ "Hit /hello/fail, with count " <> lshow count
   throwM $ err401 {errBody = "This action failed..."}

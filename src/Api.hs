@@ -2,6 +2,7 @@ module Api (app) where
 
 import Api.Hello
 import App
+import Control.Monad.Except (ExceptT (..))
 import My.Prelude
 import Servant
 import Servant.API.Generic (Generic)
@@ -18,25 +19,10 @@ apiImpl =
     { _api = toServant helloImpl
     }
 
-app :: App AppM -> IO Application
-app config = pure $ genericServeT handler apiImpl
+app :: App -> IO Application
+app config = pure $ genericServeT naturalTransformation apiImpl
   where
-    -- Attempt to handle 'ServerError's thrown by the application.
-    -- Any other error is deemed "unexpected" and we'll not leak details.
-    handler :: AppM a -> Handler a
-    handler appM = do
-      res <-
-        liftIO . try . checkpoint "Api.handler" $
-          runReaderT appM.runAppM config
-      case res of
-        Left exception -> do
-          let mAnnotatedException = fromException @(AnnotatedException ServerError) exception
-          case mAnnotatedException of
-            Just annotatedException ->
-              throwError annotatedException.exception
-            Nothing -> do
-              -- TODO: Is there a better way? It would be nice to have this
-              -- formatted the same as my other log messages.
-              liftIO . print $ logShow Error exception
-              throwError err500 {errBody = "Unexpected server error..."}
-        Right a -> pure a
+    naturalTransformation :: AppM a -> Handler a
+    naturalTransformation appM =
+      Handler . ExceptT . try . checkpoint "Api.handler" $
+        runReaderT appM.runAppM config

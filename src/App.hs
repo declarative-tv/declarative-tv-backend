@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module App where
@@ -17,47 +16,54 @@ import Database.PostgreSQL.Simple (
   close,
   connect,
  )
+import GHC.Stack (HasCallStack)
 import My.Prelude
+import UnliftIO (stdout)
 
 -- | The application environment following the "ReaderT over IO" pattern
-newtype AppM a = AppM {runAppM :: ReaderT (App AppM) IO a}
+newtype AppM a = AppM {runAppM :: ReaderT App IO a}
   deriving newtype
     ( Applicative
     , Functor
     , Monad
     , MonadIO
-    , MonadReader (App AppM)
+    , MonadReader App
     , MonadThrow
     )
 
 {- | A 'ConstraintKind' describing our application's context,
 
  * 'MonadIO' for running database actions and various 'IO' actions
- * 'MonadReader (App AppM)' so we can get 'App' via 'ask'
+ * 'MonadReader App' so we can get 'App' via 'ask'
  * 'MonadThrow' so we can use 'throwM'
- * 'WithLog (App AppM) Message' so we can 'log' with co-log
+ * 'Katip' for logging
 -}
-type AppContext m = (MonadIO m, MonadReader (App AppM) m, MonadThrow m, WithLog (App AppM) Message m)
+type AppContext m = (MonadIO m, MonadReader App m, MonadThrow m, Katip m, HasCallStack)
 
 {- | The application's environment
 
- * 'appLogAction' is our co-log environment
+ * 'appLogNamespace' contains the current katip namespace
+ * 'appLogContext' contains the current katip context
+ * 'appLogEnv' contains the katip environment that is constructed in 'makeApp'
  * 'appPostgresPool' is our instantiated postgresql pool to get connections from
 -}
-data App m = App
-  { appLogAction :: !(LogAction m Message)
+data App = App
+  { appLogNamespace :: Namespace
+  , appLogContext :: LogContexts
+  , appLogEnv :: LogEnv
   , appPostgresPool :: Pool Connection
   }
 
--- | Comes from co-log documentation, allows us to use 'WithLog (App AppM) Message m' in 'AppContext'.
-instance HasLog (App m) Message m where
-  getLogAction :: App m -> LogAction m Message
-  getLogAction = appLogAction
-  {-# INLINE getLogAction #-}
+instance Katip AppM where
+  getLogEnv = asks appLogEnv
+  localLogEnv f (AppM m) = AppM (local (\s -> s {appLogEnv = f s.appLogEnv}) m)
 
-  setLogAction :: LogAction m Message -> App m -> App m
-  setLogAction newLogAction app = app {appLogAction = newLogAction}
-  {-# INLINE setLogAction #-}
+instance KatipContext AppM where
+  getKatipContext = asks appLogContext
+  localKatipContext f (AppM m) = AppM (local (\s -> s {appLogContext = f s.appLogContext}) m)
+
+  getKatipNamespace = asks appLogNamespace
+  localKatipNamespace f (AppM m) = AppM (local (\s -> s {appLogNamespace = f s.appLogNamespace}) m)
 
 -- | Generate the connection pool from the connection information
 makePostgresPool :: ConnectInfo -> IO (Pool Connection)
@@ -66,16 +72,22 @@ makePostgresPool connectInfo =
     createPool (connect connectInfo) close 1 10 10
 
 -- | Generate our application environment
-makeApp :: Configuration -> IO (App AppM)
+makeApp :: Configuration -> IO App
 makeApp Configuration {..} = do
   appPostgresPool <- makePostgresPool postgresConnectInfo
+  handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V2
+  appLogEnv <-
+    registerScribe "stdout" handleScribe defaultScribeSettings
+      =<< initLogEnv "declarative.tv" "production"
   pure
     App
-      { appLogAction = richMessageAction
+      { appLogNamespace = mempty
+      , appLogContext = mempty
       , ..
       }
 
 -- | Tear down our application environment
-destroyApp :: App AppM -> IO ()
-destroyApp App {..} =
+destroyApp :: App -> IO ()
+destroyApp App {..} = do
   destroyAllResources appPostgresPool
+  void $ closeScribes appLogEnv

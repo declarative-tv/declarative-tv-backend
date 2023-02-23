@@ -24,7 +24,7 @@ connectionCount conn = do
  action. We could take a 'Query' and use `query :: (ToRow q, FromRow r) =>
  Connection -> Query -> q -> IO [r]`.
 -}
-runDb :: (MonadReader (App AppM) m, MonadIO m) => (Connection -> IO a) -> m a
+runDb :: (MonadReader App m, MonadIO m) => (Connection -> IO a) -> m a
 runDb ma = do
   pool <- appPostgresPool <$> ask
   liftIO $

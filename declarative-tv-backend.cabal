@@ -40,9 +40,9 @@ library
       annotated-exception
     , base >=4.7 && <5
     , bytestring
-    , co-log
     , envy
     , exceptions
+    , katip
     , mtl
     , postgresql-simple
     , resource-pool
@@ -81,10 +81,10 @@ executable declarative-tv-backend
       annotated-exception
     , base >=4.7 && <5
     , bytestring
-    , co-log
     , declarative-tv-backend
     , envy
     , exceptions
+    , katip
     , mtl
     , postgresql-simple
     , resource-pool
@@ -123,11 +123,11 @@ test-suite declarative-tv-backend-test
       annotated-exception
     , base >=4.7 && <5
     , bytestring
-    , co-log
     , declarative-tv-backend
     , envy
     , exceptions
     , hspec
+    , katip
     , mtl
     , postgresql-simple
     , resource-pool
