@@ -14,8 +14,10 @@ dependencies:
 - servant
 - servant-server
 - text
+- time-manager
 - transformers
 - unliftio
+- wai
 - warp
 
 default-extensions:

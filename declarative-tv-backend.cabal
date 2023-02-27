@@ -16,6 +16,7 @@ library
       Configuration
       Database
       My.Prelude
+      Warp.Exception
   other-modules:
       Paths_declarative_tv_backend
   hs-source-dirs:
@@ -49,8 +50,10 @@ library
     , servant
     , servant-server
     , text
+    , time-manager
     , transformers
     , unliftio
+    , wai
     , warp
   default-language: Haskell2010
 
@@ -91,8 +94,10 @@ executable declarative-tv-backend
     , servant
     , servant-server
     , text
+    , time-manager
     , transformers
     , unliftio
+    , wai
     , warp
   default-language: Haskell2010
 
@@ -134,7 +139,9 @@ test-suite declarative-tv-backend-test
     , servant
     , servant-server
     , text
+    , time-manager
     , transformers
     , unliftio
+    , wai
     , warp
   default-language: Haskell2010
