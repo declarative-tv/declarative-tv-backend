@@ -1,15 +1,17 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module Warp.Exception where
 
-import App (App (..))
+import App (App (..), AppContext, AppM)
 import Control.Exception (AsyncException (..))
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
 import GHC.IO.Exception (IOErrorType (..))
 import My.Prelude
-import Network.Wai (Request)
-import Network.Wai.Handler.Warp (InvalidRequest)
+import Network.HTTP.Types
+import Network.Wai (Request, Response, responseLBS)
+import Network.Wai.Handler.Warp (InvalidRequest (..))
 import System.IO.Error (ioeGetErrorType)
 import System.TimeManager (TimeoutThread (..))
 import UnliftIO.IO (stderr)
@@ -24,12 +26,41 @@ isDisplayableException se
   | Just TimeoutThread <- fromException se = False
   | otherwise = True
 
-onException :: (MonadReader App m, MonadIO m) => Maybe Request -> SomeException -> m ()
-onException mRequest exception = do
-  le <- appLogEnv <$> ask
+onException :: Maybe Request -> SomeException -> AppM ()
+onException mRequest exception =
   when (isDisplayableException exception) $
-    runKatipContextT le () "..." $
-      logMsg "exception:" ErrorS $
-        "Exception: " <> lshow exception
+    logMsg "exception:" ErrorS $
+      "Exception: " <> lshow exception
 
--- TODO: Add https://hackage.haskell.org/package/warp-3.3.24/docs/Network-Wai-Handler-Warp.html#v:setOnExceptionResponse
+{- | Currently the default implementation, but may customize in the future.
+
+ - Sending 413 for too large payload.
+ - Sending 431 for too large headers.
+ - Sending 400 for bad requests.
+ - Sending 500 for internal server errors.
+-}
+onExceptionResponse :: SomeException -> Response
+onExceptionResponse e
+  | Just PayloadTooLarge <-
+      fromException e =
+      responseLBS
+        status413
+        [(hContentType, "text/plain; charset=utf-8")]
+        "Payload too large"
+  | Just RequestHeaderFieldsTooLarge <-
+      fromException e =
+      responseLBS
+        status431
+        [(hContentType, "text/plain; charset=utf-8")]
+        "Request header fields too large"
+  | Just (_ :: InvalidRequest) <-
+      fromException e =
+      responseLBS
+        badRequest400
+        [(hContentType, "text/plain; charset=utf-8")]
+        "Bad Request"
+  | otherwise =
+      responseLBS
+        internalServerError500
+        [(hContentType, "text/plain; charset=utf-8")]
+        "Something went wrong"

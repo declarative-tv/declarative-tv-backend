@@ -43,6 +43,7 @@ library
     , bytestring
     , envy
     , exceptions
+    , http-types
     , katip
     , mtl
     , postgresql-simple
@@ -87,6 +88,7 @@ executable declarative-tv-backend
     , declarative-tv-backend
     , envy
     , exceptions
+    , http-types
     , katip
     , mtl
     , postgresql-simple
@@ -132,6 +134,7 @@ test-suite declarative-tv-backend-test
     , envy
     , exceptions
     , hspec
+    , http-types
     , katip
     , mtl
     , postgresql-simple

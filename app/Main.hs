@@ -10,19 +10,16 @@ import Network.Wai.Handler.Warp qualified as Warp
 import UnliftIO (bracket)
 import Warp.Exception qualified as Exception
 
--- TODO: Probably want to move this somewhere...
-applicationSettings :: MonadReader App m => m Settings
-applicationSettings = do
-  pure $
-    Warp.defaultSettings
-      & Warp.setPort 8081
-
--- TODO: Figure this out...
--- & Warp.setOnException Exception.onException
+warpSettings :: App -> Settings
+warpSettings app =
+  Warp.defaultSettings
+    & Warp.setPort 8081
+    & Warp.setOnException (\mReq se -> runReaderT (runAppM (Exception.onException mReq se)) app)
+    & Warp.setOnExceptionResponse Exception.onExceptionResponse
 
 main :: IO ()
 main = do
   configuration <- getConfiguration
   bracket (makeApp configuration) destroyApp $ \env -> do
     app' <- app env
-    Warp.runSettings (runReader applicationSettings env) app'
+    Warp.runSettings (warpSettings env) app'
