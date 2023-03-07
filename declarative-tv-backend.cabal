@@ -15,6 +15,9 @@ library
       App
       Configuration
       Database
+      Database.AllModels
+      Database.Migrate
+      Database.Model.Streamer
       My.Prelude
       Warp.Exception
   other-modules:
@@ -26,26 +29,35 @@ library
       DeriveGeneric
       DerivingStrategies
       FlexibleContexts
+      FlexibleInstances
+      GADTs
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      MultiParamTypeClasses
       NoImplicitPrelude
-      OverloadedStrings
       OverloadedRecordDot
+      OverloadedStrings
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
+      StandaloneDeriving
       TypeApplications
+      TypeFamilies
       TypeOperators
   build-depends:
       annotated-exception
     , base >=4.7 && <5
     , bytestring
     , envy
+    , esqueleto
     , exceptions
+    , file-embed
     , http-types
     , katip
     , mtl
+    , persistent
+    , persistent-postgresql
     , postgresql-simple
     , resource-pool
     , servant
@@ -69,16 +81,21 @@ executable declarative-tv-backend
       DeriveGeneric
       DerivingStrategies
       FlexibleContexts
+      FlexibleInstances
+      GADTs
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      MultiParamTypeClasses
       NoImplicitPrelude
-      OverloadedStrings
       OverloadedRecordDot
+      OverloadedStrings
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
+      StandaloneDeriving
       TypeApplications
+      TypeFamilies
       TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
@@ -87,10 +104,14 @@ executable declarative-tv-backend
     , bytestring
     , declarative-tv-backend
     , envy
+    , esqueleto
     , exceptions
+    , file-embed
     , http-types
     , katip
     , mtl
+    , persistent
+    , persistent-postgresql
     , postgresql-simple
     , resource-pool
     , servant
@@ -115,16 +136,21 @@ test-suite declarative-tv-backend-test
       DeriveGeneric
       DerivingStrategies
       FlexibleContexts
+      FlexibleInstances
+      GADTs
       GeneralizedNewtypeDeriving
       ImportQualifiedPost
       LambdaCase
+      MultiParamTypeClasses
       NoImplicitPrelude
-      OverloadedStrings
       OverloadedRecordDot
+      OverloadedStrings
       RankNTypes
       RecordWildCards
       ScopedTypeVariables
+      StandaloneDeriving
       TypeApplications
+      TypeFamilies
       TypeOperators
   build-depends:
       annotated-exception
@@ -132,11 +158,15 @@ test-suite declarative-tv-backend-test
     , bytestring
     , declarative-tv-backend
     , envy
+    , esqueleto
     , exceptions
+    , file-embed
     , hspec
     , http-types
     , katip
     , mtl
+    , persistent
+    , persistent-postgresql
     , postgresql-simple
     , resource-pool
     , servant

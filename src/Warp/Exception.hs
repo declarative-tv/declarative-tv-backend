@@ -3,10 +3,8 @@
 
 module Warp.Exception where
 
-import App (App (..), AppContext, AppM)
+import App (AppM)
 import Control.Exception (AsyncException (..))
-import Data.Text qualified as T
-import Data.Text.IO qualified as TIO
 import GHC.IO.Exception (IOErrorType (..))
 import My.Prelude
 import Network.HTTP.Types
@@ -14,7 +12,6 @@ import Network.Wai (Request, Response, responseLBS)
 import Network.Wai.Handler.Warp (InvalidRequest (..))
 import System.IO.Error (ioeGetErrorType)
 import System.TimeManager (TimeoutThread (..))
-import UnliftIO.IO (stderr)
 
 isDisplayableException :: SomeException -> Bool
 isDisplayableException se
@@ -30,7 +27,10 @@ onException :: Maybe Request -> SomeException -> AppM ()
 onException mRequest exception =
   when (isDisplayableException exception) $
     logMsg "exception:" ErrorS $
-      "Exception: " <> lshow exception
+      "Exception: "
+        <> lshow exception
+        <> "Request: "
+        <> lshow mRequest
 
 {- | Currently the default implementation, but may customize in the future.
 

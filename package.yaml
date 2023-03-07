@@ -6,10 +6,14 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - envy
+- esqueleto
 - exceptions
+- file-embed
 - http-types
 - katip
 - mtl
+- persistent
+- persistent-postgresql
 - postgresql-simple
 - resource-pool
 - servant
@@ -26,16 +30,21 @@ default-extensions:
 - DeriveGeneric
 - DerivingStrategies
 - FlexibleContexts
+- FlexibleInstances
+- GADTs
 - GeneralizedNewtypeDeriving
 - ImportQualifiedPost
 - LambdaCase
+- MultiParamTypeClasses
 - NoImplicitPrelude
-- OverloadedStrings
 - OverloadedRecordDot
+- OverloadedStrings
 - RankNTypes
 - RecordWildCards
 - ScopedTypeVariables
+- StandaloneDeriving
 - TypeApplications
+- TypeFamilies
 - TypeOperators
 
 # The library contains all of our application code. The executable

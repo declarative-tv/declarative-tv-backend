@@ -91,3 +91,7 @@ destroyApp :: App -> IO ()
 destroyApp App {..} = do
   destroyAllResources appPostgresPool
   void $ closeScribes appLogEnv
+
+-- | Use katip logger in 'IO'
+logIO :: App -> Namespace -> Severity -> LogStr -> IO ()
+logIO a n s lst = runReaderT (runAppM $ logMsg n s lst) a

@@ -23,7 +23,6 @@ import Control.Exception.Annotated.UnliftIO as AnnotatedException hiding (Handle
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text, pack)
-import GHC.Stack (callStack)
 import Katip
 import Prelude hiding (
   cycle,
