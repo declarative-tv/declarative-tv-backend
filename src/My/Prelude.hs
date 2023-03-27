@@ -17,12 +17,22 @@ module My.Prelude (
 
   -- * Annotated Exception
   module AnnotatedException,
+
+  -- * Esqueleto
+
+  --
+
+  -- | To use Persistent use,
+  --
+  -- @ import qualified Database.Persistent as P
+  module Esqueleto,
 ) where
 
 import Control.Exception.Annotated.UnliftIO as AnnotatedException hiding (Handler)
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text, pack)
+import Database.Esqueleto.Experimental as Esqueleto
 import Katip
 import Prelude hiding (
   cycle,

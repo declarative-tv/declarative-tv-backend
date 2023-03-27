@@ -1,7 +1,6 @@
 module App.Types where
 
 import Data.Pool (Pool)
-import Database.Esqueleto.Experimental
 import My.Prelude
 
 {- | The application's environment

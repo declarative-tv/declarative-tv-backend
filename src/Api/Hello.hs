@@ -22,12 +22,12 @@ helloImpl =
 
 workAction :: AppContext m => m Text
 workAction = do
-  count <- runDb getStreamers
-  logMsg "hello" InfoS $ "Hit /hello/work, with count " <> lshow count
+  streamers <- runDb getStreamers
+  logMsg "hello" InfoS $ "Hit /hello/work, with count " <> lshow streamers
   pure "hello, world"
 
 failAction :: AppContext m => m Text
 failAction = do
-  count <- runDb getStreamers
-  logMsg "hello" InfoS $ "Hit /hello/fail, with count " <> lshow count
+  streamers <- runDb getStreamers
+  logMsg "hello" InfoS $ "Hit /hello/fail, with count " <> lshow streamers
   throwM $ err401 {errBody = "This action failed..."}

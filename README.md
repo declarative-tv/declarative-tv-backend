@@ -7,8 +7,8 @@ TODO
   - Used [katip-setup][these directions]
 - [x] Use [annotated-exception][annotated-exception] to make exceptions easier
   - See `src/Api.hs` for an example
-- [ ] Using [esqueleto][esqueleto] with [persistent][persistent]
-  - [ ] Setup a `runDB` function
+- [x] Using [esqueleto][esqueleto] with [persistent][persistent]
+  - [x] Setup a `runDB` function
 - [ ] Set up opentelemetry with honeycomb
 - [ ] Handle CSRF
 - [ ] Get websockets working

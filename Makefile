@@ -32,4 +32,7 @@ repl: hpack
 
 ghci: repl
 
-.PHONY: build hpack test run clean format-haskell format-nix format ghcid hlint repl ghci
+haddock: hpack
+	cabal haddock
+
+.PHONY: build hpack test run clean format-haskell format-nix format ghcid hlint repl ghci haddock

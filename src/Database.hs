@@ -1,7 +1,6 @@
 module Database where
 
 import App.Types
-import Database.Esqueleto.Experimental
 import Database.Model.Streamer
 import My.Prelude
 

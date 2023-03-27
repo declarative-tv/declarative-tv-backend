@@ -8,7 +8,6 @@ import App.Types
 import Configuration
 import Control.Monad.Logger (runNoLoggingT)
 import Data.Pool (Pool, destroyAllResources)
-import Database.Esqueleto.Experimental
 import Database.Migrate (migrateAll)
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import GHC.Stack (HasCallStack)
