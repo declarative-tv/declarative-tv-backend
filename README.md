@@ -9,9 +9,11 @@ TODO
   - See `src/Api.hs` for an example
 - [x] Using [esqueleto][esqueleto] with [persistent][persistent]
   - [x] Setup a `runDB` function
-- [ ] Set up opentelemetry with honeycomb
+- [ ] Twitch authentication/webhooks
+- [ ] YouTube authentication/webhooks
+- [ ] Forward go-live notifications to websocket
 - [ ] Handle CSRF
-- [ ] Get websockets working
+- [ ] Set up opentelemetry with honeycomb
 
 Documentation
 ---
