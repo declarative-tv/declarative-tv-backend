@@ -4,18 +4,13 @@
 
 module App where
 
+import App.Types
 import Configuration
-import Data.Pool (
-  Pool,
-  createPool,
-  destroyAllResources,
- )
-import Database.PostgreSQL.Simple (
-  ConnectInfo (..),
-  Connection,
-  close,
-  connect,
- )
+import Control.Monad.Logger (runNoLoggingT)
+import Data.Pool (Pool, destroyAllResources)
+import Database.Esqueleto.Experimental
+import Database.Migrate (migrateAll)
+import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import GHC.Stack (HasCallStack)
 import My.Prelude
 import UnliftIO (stdout)
@@ -27,6 +22,7 @@ newtype AppM a = AppM {runAppM :: ReaderT App IO a}
     , Functor
     , Monad
     , MonadIO
+    , MonadUnliftIO
     , MonadReader App
     , MonadThrow
     )
@@ -38,21 +34,7 @@ newtype AppM a = AppM {runAppM :: ReaderT App IO a}
  * 'MonadThrow' so we can use 'throwM'
  * 'Katip' for logging
 -}
-type AppContext m = (MonadIO m, MonadReader App m, MonadThrow m, Katip m, HasCallStack)
-
-{- | The application's environment
-
- * 'appLogNamespace' contains the current katip namespace
- * 'appLogContext' contains the current katip context
- * 'appLogEnv' contains the katip environment that is constructed in 'makeApp'
- * 'appPostgresPool' is our instantiated postgresql pool to get connections from
--}
-data App = App
-  { appLogNamespace :: Namespace
-  , appLogContext :: LogContexts
-  , appLogEnv :: LogEnv
-  , appPostgresPool :: Pool Connection
-  }
+type AppContext m = (MonadUnliftIO m, MonadReader App m, MonadThrow m, Katip m, HasCallStack)
 
 instance Katip AppM where
   getLogEnv = asks appLogEnv
@@ -66,15 +48,21 @@ instance KatipContext AppM where
   localKatipNamespace f (AppM m) = AppM (local (\s -> s {appLogNamespace = f s.appLogNamespace}) m)
 
 -- | Generate the connection pool from the connection information
-makePostgresPool :: ConnectInfo -> IO (Pool Connection)
-makePostgresPool connectInfo =
+makePostgresPool :: MonadUnliftIO m => ConnectionString -> m (Pool SqlBackend)
+makePostgresPool connectionString =
   checkpoint "makePostgresPool" $
-    createPool (connect connectInfo) close 1 10 10
+    -- TODO: 'runNoLoggingT' is probably not correct here...
+    runNoLoggingT $
+      createPostgresqlPool connectionString 10
 
 -- | Generate our application environment
 makeApp :: Configuration -> IO App
 makeApp Configuration {..} = do
-  appPostgresPool <- makePostgresPool postgresConnectInfo
+  appPostgresPool <- makePostgresPool $ postgresConnectInfoToConnectionString postgresConnectInfo
+
+  -- TODO: Temporary until we decide on a more permanent schema
+  liftIO $ runSqlPool (runMigration migrateAll) appPostgresPool
+
   handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V2
   appLogEnv <-
     registerScribe "stdout" handleScribe defaultScribeSettings

@@ -2,9 +2,9 @@ module Main where
 
 import Api (app)
 import App
+import App.Types
 import Configuration
 import Data.Function ((&))
-import Database.PostgreSQL.Simple (ConnectInfo (..))
 import My.Prelude
 import Network.Wai.Handler.Warp (Settings)
 import Network.Wai.Handler.Warp qualified as Warp
@@ -23,5 +23,14 @@ main = do
   configuration <- getConfiguration
   bracket (makeApp configuration) destroyApp $ \env -> do
     app' <- app env
-    logIO env "hello" InfoS $ "Application starting on port: " <> lshow configuration.postgresConnectInfo.connectPort
+    logIO env "starting" InfoS $
+      "Application starting with"
+        <> " postgresHost: "
+        <> lshow configuration.postgresConnectInfo.postgresHost
+        <> " postgresPost: "
+        <> lshow configuration.postgresConnectInfo.postgresPort
+        <> " postgresDatabaseName: "
+        <> lshow configuration.postgresConnectInfo.postgresDatabaseName
+        <> " postgresUser: "
+        <> lshow configuration.postgresConnectInfo.postgresUser
     Warp.runSettings (warpSettings env) app'

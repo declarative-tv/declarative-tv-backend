@@ -13,6 +13,7 @@ library
       Api
       Api.Hello
       App
+      App.Types
       Configuration
       Database
       Database.AllModels
@@ -55,6 +56,7 @@ library
     , file-embed
     , http-types
     , katip
+    , monad-logger
     , mtl
     , persistent
     , persistent-postgresql
@@ -109,6 +111,7 @@ executable declarative-tv-backend
     , file-embed
     , http-types
     , katip
+    , monad-logger
     , mtl
     , persistent
     , persistent-postgresql
@@ -164,6 +167,7 @@ test-suite declarative-tv-backend-test
     , hspec
     , http-types
     , katip
+    , monad-logger
     , mtl
     , persistent
     , persistent-postgresql

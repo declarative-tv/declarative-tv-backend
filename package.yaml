@@ -11,6 +11,7 @@ dependencies:
 - file-embed
 - http-types
 - katip
+- monad-logger
 - mtl
 - persistent
 - persistent-postgresql

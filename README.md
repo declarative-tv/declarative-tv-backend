@@ -24,6 +24,7 @@ Random Notes
 
 - Add this to `.envrc` (from [Production Haskell][production-haskell]
   - `export GHC_OPTIONS='-j4 +RTS -A128m -n2m -qg -RTS'`
+  - `export DECLARATIVE_POSTGRES_USER=$USER` may be needed
 
 [annotated-exception]: https://hackage.haskell.org/package/annotated-exception
 [envy]: https://hackage.haskell.org/package/envy

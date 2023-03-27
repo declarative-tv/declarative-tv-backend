@@ -1,20 +1,21 @@
 module Configuration where
 
-import Data.Word (Word16)
-import Database.PostgreSQL.Simple (ConnectInfo (..), defaultConnectInfo)
+import Data.ByteString (ByteString)
+import Database.Persist.Postgresql (ConnectionString)
 import GHC.Generics (Generic)
 import My.Prelude
 import System.Envy
 
 newtype Configuration = Configuration
-  { postgresConnectInfo :: ConnectInfo
+  { postgresConnectInfo :: PostgresConnectInfo
   }
 
+-- | TODO: May want to add password here
 data PostgresConnectInfo = PostgresConnectInfo
-  { postgresHost :: String
-  , postgresPort :: Word16
-  , postgresUser :: String
-  , postgresDatabase :: String
+  { postgresHost :: ByteString
+  , postgresPort :: ByteString
+  , postgresUser :: ByteString
+  , postgresDatabaseName :: ByteString
   }
   deriving stock (Show, Eq, Generic)
 
@@ -22,9 +23,9 @@ instance DefConfig PostgresConnectInfo where
   defConfig =
     PostgresConnectInfo
       { postgresHost = "localhost"
-      , postgresPort = 5432
+      , postgresPort = "5432"
       , postgresUser = "chiroptical"
-      , postgresDatabase = "declarative-tv"
+      , postgresDatabaseName = "declarative-tv"
       }
 
 instance FromEnv PostgresConnectInfo where
@@ -35,17 +36,20 @@ instance FromEnv PostgresConnectInfo where
         , customPrefix = "DECLARATIVE"
         }
 
-postgresConnectInfoToConnectInfo :: PostgresConnectInfo -> ConnectInfo
-postgresConnectInfoToConnectInfo PostgresConnectInfo {..} =
-  defaultConnectInfo
-    { connectHost = postgresHost
-    , connectPort = postgresPort
-    , connectUser = postgresUser
-    , connectDatabase = postgresDatabase
-    }
-
 getConfiguration :: IO Configuration
 getConfiguration = do
-  postgresConnectInfo <-
-    postgresConnectInfoToConnectInfo <$> decodeWithDefaults defConfig
-  pure Configuration {..}
+  postgresConnectInfo@PostgresConnectInfo {} <- decodeWithDefaults defConfig
+  pure $ Configuration {..}
+
+postgresConnectInfoToConnectionString :: PostgresConnectInfo -> ConnectionString
+postgresConnectInfoToConnectionString PostgresConnectInfo {..} =
+  "host="
+    <> postgresHost
+    <> " port="
+    <> postgresPort
+    <> " user="
+    <> postgresUser
+    <> " dbname="
+    <> postgresDatabaseName
+
+-- <> " password=" <> postgresPort

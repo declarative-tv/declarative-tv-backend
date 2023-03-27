@@ -2,6 +2,7 @@ module Api (app) where
 
 import Api.Hello
 import App
+import App.Types
 import Control.Monad.Except (ExceptT (..))
 import My.Prelude
 import Servant
