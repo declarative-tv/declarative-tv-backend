@@ -19,6 +19,7 @@ library
       Database.AllModels
       Database.Migrate
       Database.Model.Streamer
+      Learn.ServantGeneric
       My.Prelude
       Warp.Exception
   other-modules:
