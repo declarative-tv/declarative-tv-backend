@@ -10,6 +10,7 @@ module Learn.ServantGeneric where
 
 import Control.Applicative ((<|>))
 import Data.Data (Proxy (..))
+import Data.Text (pack, splitOn, unpack)
 import GHC.Generics
 import GHC.TypeLits
 import Prelude
@@ -64,7 +65,7 @@ type Put = Verb 'PUT
 
 type FirstApi = "first" :> Capture "first" Int :> Get '[JSON] Value
 type SecondApi = "second" :> Get '[JSON] Value
-type BothApi = "api" :> FirstApi :<|> SecondApi
+type BothApi = "api" :> (FirstApi :<|> SecondApi)
 
 -- :kind! Nul '[]
 -- :kind! Nul '[1]
@@ -183,13 +184,14 @@ instance
   (KnownSymbol name, HasServer right) =>
   HasServer (Capture name typ :> right)
   where
-  route _ server (_ : ls) req resp =
-    route (Proxy @right) (server (symbolVal (Proxy @name))) ls req resp
+  route _ server (l : ls) req resp =
+    route (Proxy @right) (server l) ls req resp
   route _ _ _ _ _ = Nothing
 
 instance (KnownSymbol s, HasServer r) => HasServer (s :> r) where
-  route _ server (_ : ls) req resp =
-    route (Proxy @r) server ls req resp
+  route _ server (l : ls) req resp
+    | l == symbolVal (Proxy @s) =
+        route (Proxy @r) server ls req resp
   route _ _ _ _ _ = Nothing
 
 instance HasServer (Get xs a) where
@@ -198,24 +200,23 @@ instance HasServer (Get xs a) where
 
 type Application = Request -> (Response -> IO ResponseReceived) -> IO String
 
-{- | TODO: Unsure how to get the second one to show up...
- Basically, we aren't hitting the alternative
--}
 serve :: HasServer a => Proxy a -> Server a -> Application
 serve proxy handler req resp =
-  case route proxy handler ["api", "second", "..."] req resp of
-    Nothing -> resp "broke"
+  case route proxy handler paths req resp of
+    Nothing -> resp "invalid path..."
     Just result -> result
+  where
+    paths = unpack <$> splitOn "/" (pack req)
 
-runServer :: IO String
-runServer = serve (Proxy @BothApi) bothHandler "..." pure
+runServer :: String -> IO String
+runServer path = serve (Proxy @BothApi) bothHandler path pure
   where
     bothHandler :: Server BothApi
     bothHandler = firstHandler :<|> secondHandler
     firstHandler :: Response -> IO ResponseReceived
     firstHandler = pure
     secondHandler :: IO ResponseReceived
-    secondHandler = pure "..."
+    secondHandler = pure "second handler"
 
 -- This is essentially how the original servant works
 --
