@@ -260,8 +260,17 @@ instance GProduct (K1 i c) where
   gFromServant = K1
 
 {- |
- > :kind! ToServant (Example AsApi)
+ @
+   > :kind! ToServant (Example AsApi)
+ @
+
+ This is similar to 'BothApi' from above
+
+ @
    > :kind! ToServant (Example AsServer)
+ @
+
+ This is the server's type
 -}
 type ToServant a = GToServant (Rep a)
 
@@ -271,7 +280,14 @@ type ToServant a = GToServant (Rep a)
 type GenericProduct a = (Generic a, GProduct (Rep a))
 
 {- | e.g.
- > :type toServant exampleImpl
+
+ @
+   > :type toServant exampleImpl
+   SG.toServant SG.exampleImpl
+    :: (String -> IO SG.Response) SG.:<|> IO SG.Response
+ @
+
+ This defines the shape of the server
 -}
 toServant :: GenericProduct a => a -> ToServant a
 toServant = gToServant . from
@@ -286,25 +302,28 @@ exampleImpl =
     , second = pure "second" :: IO String
     }
 
-genericServer ::
-  GenericProduct (routes AsServer) =>
-  routes AsServer ->
-  ToServant (routes AsServer)
-genericServer = toServant
-
 type ToServantApi routes = ToServant (routes AsApi)
 type ToServantServer routes = ToServant (routes AsServer)
 
--- | TODO: uh... what?
 genericServe ::
   forall routes.
-  ( HasServer (ToServantApi routes)
-  , GenericProduct (routes AsServer)
-  , Server (ToServantApi routes) ~ ToServant (routes AsServer)
+  ( HasServer (ToServantApi routes) -- the API type must be an instance of 'HasServer'
+  , GenericProduct (routes AsServer) -- the constraints that make GProduct work
+  , -- \| We need to remind GHC that these are the same. The former is for
+    -- 'serve' the latter is for `toServant`.
+    --
+    -- ghci> :kind! SG.Server (SG.ToServantApi SG.Example)
+    -- SG.Server (SG.ToServantApi SG.Example) :: *
+    -- = ([Char] -> IO [Char]) SG.:<|> IO [Char]
+    --
+    -- ghci> :kind! SG.ToServant (SG.Example SG.AsServer)
+    -- SG.ToServant (SG.Example SG.AsServer) :: *
+    -- = ([Char] -> IO [Char]) SG.:<|> IO [Char]
+    Server (ToServantApi routes) ~ ToServant (routes AsServer)
   ) =>
   routes AsServer ->
   Application
-genericServe = serve (Proxy @(ToServantApi routes)) . genericServer
+genericServe = serve (Proxy @(ToServantApi routes)) . toServant
 
 genericRunServer :: String -> IO Response
 genericRunServer path = genericServe exampleImpl path pure
