@@ -163,6 +163,7 @@ type instance Server ((s :: Symbol) :> r) = Server r
 -}
 type instance Server (Capture (s :: Symbol) a :> r) = String -> Server r
 
+-- None of this really matters because our server doesn't do anything...
 type Request = String
 type Response = String
 type ResponseReceived = String
@@ -176,10 +177,37 @@ class HasServer a where
     (Response -> IO ResponseReceived) -> -- response
     Maybe (IO ResponseReceived)
 
+{- | The ':<|>' is a branch, we can either follow the left or the right.
+ Be careful with parentheses, e.g.
+ @
+  type BothApi = "api" :> FirstApi :<|> SecondApi
+ @
+
+ is different than,
+
+ @
+  type BothApi = "api" :> (FirstApi :<|> SecondApi)
+ @
+
+ The fixity means the first is implicitly
+
+ @
+  type BothApi = ("api" :> FirstApi) :<|> SecondApi
+ @
+-}
 instance (HasServer left, HasServer right) => HasServer (left :<|> right) where
   route _ (l :<|> r) path req resp =
     route (Proxy @left) l path req resp <|> route (Proxy @right) r path req resp
 
+{- | Capture the path and send it to the handler, additionally move to the next
+ part of the path. We aren't done until we find a 'Verb'.
+
+ In servant, we would try to interpret the 'KnownSymbol' `name` as type `typ`
+ Here, we don't do that for simplicity. If it can't interpret the type, we
+ would look at other routes that might match.
+
+ 'QueryParam' is handled very similarly
+-}
 instance
   (KnownSymbol name, HasServer right) =>
   HasServer (Capture name typ :> right)
@@ -188,18 +216,28 @@ instance
     route (Proxy @right) (server l) ls req resp
   route _ _ _ _ _ = Nothing
 
+{- | Compare the current path to the server's path. If they are equal,
+ continue, else we are done. We are basically walking the path together. If
+ that isn't possible, we are following a different route's path.
+-}
 instance (KnownSymbol s, HasServer r) => HasServer (s :> r) where
   route _ server (l : ls) req resp
     | l == symbolVal (Proxy @s) =
         route (Proxy @r) server ls req resp
   route _ _ _ _ _ = Nothing
 
+{- | A termination condition if the path has been fully traverse do the thing.
+ In this case, we pass the server result to the response function. In the
+ examples below, that is just 'pure' for simplicity.
+-}
 instance HasServer (Get xs a) where
   route _ server [] _ resp = Just $ server >>= resp
   route _ _ _ _ _ = Nothing
 
+-- | In servant, this would return 'IO a'
 type Application = Request -> (Response -> IO ResponseReceived) -> IO String
 
+-- | Serve the application, complain if we can't find a valid path
 serve :: HasServer a => Proxy a -> Server a -> Application
 serve proxy handler req resp =
   case route proxy handler paths req resp of
@@ -208,6 +246,9 @@ serve proxy handler req resp =
   where
     paths = unpack <$> splitOn "/" (pack req)
 
+{- | In the original version of servant we had to combine handlers with :<|>.
+ The type errors are pretty bad using this style.
+-}
 runServer :: String -> IO String
 runServer path = serve (Proxy @BothApi) bothHandler path pure
   where
@@ -222,7 +263,12 @@ runServer path = serve (Proxy @BothApi) bothHandler path pure
 --
 -- Let's now look at servant-generic's code
 
+{- | Allows us to dress up a record in different styles. We can re-use the same
+ record type to interpret different modes. For example, what type should the
+ Api have? What type should the Server have?
+-}
 type family mode :- api
+
 infixl 0 :-
 
 data AsApi
@@ -233,29 +279,37 @@ type instance AsServer :- api = Server api
 
 -- Could also have AsClient, AsServerT, AsClientT, etc...
 
+{- | Everything to the right of ':-' is the same as before, but we can
+ interpret the 'Example AsApi' or 'Example AsServer' to get different types.
+ This is called "higher-kinded data" or HKD.
+-}
 data Example route = Example
   { first :: route :- "first" :> Capture "this" String :> Get '[JSON] Value
   , second :: route :- "second" :> Get '[JSON] Value
   }
   deriving stock (Generic)
 
+{- | An associated type class that converts the representation of a record type
+ in Generic to Servant's ':<|>'. Essentially, each field in the record is a
+ route!
+-}
 class GProduct f where
   type GToServant f
   gToServant :: f p -> GToServant f
   gFromServant :: GToServant f -> f p
-
-instance GProduct f => GProduct (M1 i c f) where
-  type GToServant (M1 i c f) = GToServant f
-  gToServant (M1 x) = gToServant x
-  gFromServant = M1 . gFromServant
 
 instance (GProduct left, GProduct right) => GProduct (left :*: right) where
   type GToServant (left :*: right) = GToServant left :<|> GToServant right
   gToServant (left :*: right) = gToServant left :<|> gToServant right
   gFromServant (left :<|> right) = gFromServant left :*: gFromServant right
 
+instance GProduct f => GProduct (M1 i c f) where
+  type GToServant (M1 i c f) = GToServant f -- a record selector, more recursion
+  gToServant (M1 x) = gToServant x
+  gFromServant = M1 . gFromServant
+
 instance GProduct (K1 i c) where
-  type GToServant (K1 i c) = c
+  type GToServant (K1 i c) = c -- The route's type
   gToServant (K1 x) = x
   gFromServant = K1
 
@@ -292,9 +346,13 @@ type GenericProduct a = (Generic a, GProduct (Rep a))
 toServant :: GenericProduct a => a -> ToServant a
 toServant = gToServant . from
 
+-- | I don't know how this is used within servant...
 fromServant :: GenericProduct a => ToServant a -> a
 fromServant = to . gFromServant
 
+{- | An implementation of our server. The type inference here is a lot better
+ than before. Literally my favorite part of using servant's generic features.
+-}
 exampleImpl :: Example AsServer
 exampleImpl =
   Example
@@ -307,23 +365,26 @@ type ToServantServer routes = ToServant (routes AsServer)
 
 genericServe ::
   forall routes.
-  ( HasServer (ToServantApi routes) -- the API type must be an instance of 'HasServer'
-  , GenericProduct (routes AsServer) -- the constraints that make GProduct work
-  , -- \| We need to remind GHC that these are the same. The former is for
+  ( -- the API type must be an instance of 'HasServer'
+    HasServer (ToServantApi routes)
+  , -- the constraints that enable the Generic machinery
+    GenericProduct (routes AsServer)
+  , -- remind GHC that these are the same. The former is for
     -- 'serve' the latter is for `toServant`.
     --
-    -- ghci> :kind! SG.Server (SG.ToServantApi SG.Example)
-    -- SG.Server (SG.ToServantApi SG.Example) :: *
-    -- = ([Char] -> IO [Char]) SG.:<|> IO [Char]
+    -- ghci> :kind! Server (ToServantApi Example)
+    -- Server (ToServantApi Example) :: *
+    -- = ([Char] -> IO [Char]) :<|> IO [Char]
     --
-    -- ghci> :kind! SG.ToServant (SG.Example SG.AsServer)
-    -- SG.ToServant (SG.Example SG.AsServer) :: *
-    -- = ([Char] -> IO [Char]) SG.:<|> IO [Char]
+    -- ghci> :kind! ToServant (Example AsServer)
+    -- ToServant (Example AsServer) :: *
+    -- = ([Char] -> IO [Char]) :<|> IO [Char]
     Server (ToServantApi routes) ~ ToServant (routes AsServer)
   ) =>
   routes AsServer ->
   Application
 genericServe = serve (Proxy @(ToServantApi routes)) . toServant
 
+-- | Look mom, no handlers!
 genericRunServer :: String -> IO Response
 genericRunServer path = genericServe exampleImpl path pure
