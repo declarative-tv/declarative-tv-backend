@@ -223,7 +223,7 @@ runServer path = serve (Proxy @BothApi) bothHandler path pure
 -- Let's now look at servant-generic's code
 
 type family mode :- api
-infixl 3 :-
+infixl 0 :-
 
 data AsApi
 type instance AsApi :- api = api
@@ -234,7 +234,7 @@ type instance AsServer :- api = Server api
 -- Could also have AsClient, AsServerT, AsClientT, etc...
 
 data Example route = Example
-  { first :: route :- "first" :> Get '[JSON] Value
+  { first :: route :- "first" :> Capture "this" String :> Get '[JSON] Value
   , second :: route :- "second" :> Get '[JSON] Value
   }
   deriving stock (Generic)
@@ -282,15 +282,29 @@ fromServant = to . gFromServant
 exampleImpl :: Example AsServer
 exampleImpl =
   Example
-    { first = pure "first" :: IO String
+    { first = pure :: String -> IO String
     , second = pure "second" :: IO String
     }
 
--- genericServe
---     :: forall routes.
---        ( HasServer (ToServant routes) '[]
---        , GenericProduct routes
---        , Server (ToServant routes) ~ ToServant routes AsServer
---        )
---     => routes AsServer -> Application
--- genericServe = serve (Proxy :: Proxy (ToServantApi routes))  . genericServer
+genericServer ::
+  GenericProduct (routes AsServer) =>
+  routes AsServer ->
+  ToServant (routes AsServer)
+genericServer = toServant
+
+type ToServantApi routes = ToServant (routes AsApi)
+type ToServantServer routes = ToServant (routes AsServer)
+
+-- | TODO: uh... what?
+genericServe ::
+  forall routes.
+  ( HasServer (ToServantApi routes)
+  , GenericProduct (routes AsServer)
+  , Server (ToServantApi routes) ~ ToServant (routes AsServer)
+  ) =>
+  routes AsServer ->
+  Application
+genericServe = serve (Proxy @(ToServantApi routes)) . genericServer
+
+genericRunServer :: String -> IO Response
+genericRunServer path = genericServe exampleImpl path pure
