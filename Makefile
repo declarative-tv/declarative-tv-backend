@@ -35,4 +35,8 @@ ghci: repl
 haddock: hpack
 	cabal haddock
 
-.PHONY: build hpack test run clean format-haskell format-nix format ghcid hlint repl ghci haddock
+db-create:
+	psql declarative-tv < scripts/setup.sql
+
+.PHONY: build hpack test run clean format-haskell format-nix format ghcid hlint
+	repl ghci haddock db-create

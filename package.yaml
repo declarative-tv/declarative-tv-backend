@@ -13,6 +13,7 @@ dependencies:
 - katip
 - monad-logger
 - mtl
+- path-pieces
 - persistent
 - persistent-postgresql
 - postgresql-simple
@@ -20,9 +21,11 @@ dependencies:
 - servant
 - servant-server
 - text
+- time
 - time-manager
 - transformers
 - unliftio
+- uuid
 - wai
 - warp
 

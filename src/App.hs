@@ -8,9 +8,10 @@ import App.Types
 import Configuration
 import Control.Monad.Logger (runNoLoggingT)
 import Data.Pool (Pool, destroyAllResources)
-import Database.Migrate (migrateAll)
+import Database.Model.Streamer (Streamer (..))
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import GHC.Stack (HasCallStack)
+import Model.StreamingPlatform (StreamingPlatform (..))
 import My.Prelude
 import UnliftIO (stdout)
 
@@ -59,8 +60,8 @@ makeApp :: Configuration -> IO App
 makeApp Configuration {..} = do
   appPostgresPool <- makePostgresPool $ postgresConnectInfoToConnectionString postgresConnectInfo
 
-  -- TODO: Temporary until we decide on a more permanent schema
-  liftIO $ runSqlPool (runMigration migrateAll) appPostgresPool
+  -- You can run SQL at start-up like this
+  -- liftIO $ runSqlPool (insert_ $ Streamer "chiroptical" Youtube) appPostgresPool
 
   handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V2
   appLogEnv <-

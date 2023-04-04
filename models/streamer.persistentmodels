@@ -1,3 +1,7 @@
-Streamer
+Streamer sql=streamers
+    Id UUID default=gen_random_uuid()
     handle Text
+    platform StreamingPlatform
+    createdAt UTCTime MigrationOnly
+    updatedAt UTCTime MigrationOnly
     deriving Show

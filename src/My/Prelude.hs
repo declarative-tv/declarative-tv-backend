@@ -26,12 +26,16 @@ module My.Prelude (
   --
   -- @ import qualified Database.Persistent as P
   module Esqueleto,
+
+  -- * Time
+  module Time,
 ) where
 
 import Control.Exception.Annotated.UnliftIO as AnnotatedException hiding (Handler)
 import Control.Monad.Catch as MTL (MonadThrow, throwM)
 import Control.Monad.Reader as MTL
 import Data.Text as Text (Text, pack)
+import Data.Time.Clock as Time
 import Database.Esqueleto.Experimental as Esqueleto
 import Katip
 import Prelude hiding (
